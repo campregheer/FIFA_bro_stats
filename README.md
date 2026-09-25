@@ -96,25 +96,34 @@ Este projeto é construído com as seguintes tecnologias:
 ## ☁️ Deploy
 
 ### Backend (Render)
-O backend é conteinerizado com Docker e deployado no Render. As configurações essenciais incluem:
-- **Repositório:** `https://github.com/campregheer/FIFA_bro_stats`
-- **Root Directory:** `backend`
-- **Environment:** Docker
-- **Porta:** `8080` (exposta no Dockerfile)
-- **Variáveis de Ambiente (Render Dashboard):**
-  - `DATABASE_URL`: `jdbc:postgresql://[SUA_URL_NEON]`
-  - `DATABASE_USERNAME`: `[SEU_USUARIO_NEON]`
-  - `DATABASE_PASSWORD`: `[SUA_SENHA_NEON]`
-  - `CORS_ALLOWED_ORIGINS`: `https://[URL_DO_SEU_FRONTEND_DEPLOYADO]`
-  - `SPRING_PROFILES_ACTIVE`: `prod`
+O repositório inclui um Blueprint em `render.yaml` para configurar o serviço Docker. No Render, crie/import o Blueprint apontando para este repositório e informe as variáveis secretas pedidas:
 
-### Frontend (Vercel - Exemplo)
-O frontend pode ser deployado em plataformas como Vercel ou Netlify. As configurações essenciais incluem:
-- **Repositório:** `https://github.com/campregheer/FIFA_bro_stats` (apontando para a pasta `frontend`)
-- **Build Command:** `npm run build`
-- **Output Directory:** `dist`
-- **Variáveis de Ambiente (Vercel Dashboard):**
-  - `VITE_API_BASE_URL`: `https://[URL_DO_SEU_BACKEND_DEPLOYADO_NO_RENDER]`
+- `DATABASE_URL`: URL JDBC externa do PostgreSQL, no formato `jdbc:postgresql://HOST:5432/DB?sslmode=require` (use o host externo do Neon).
+- `DATABASE_USERNAME`: usuário do banco.
+- `DATABASE_PASSWORD`: senha do banco.
+- `CORS_ALLOWED_ORIGINS`: domínio final do Vercel, por exemplo `https://seu-projeto.vercel.app`, sem barra no final. Se houver mais de uma origem, separe-as por vírgulas.
+
+O Blueprint ativa o perfil `prod`; o Render injeta `PORT` e o Spring usa esse valor. O Flyway aplica as migrações V1–V5 na inicialização. Não configure `ddl-auto=update` em produção. Guarde as credenciais somente nas variáveis do serviço, nunca em arquivos versionados.
+
+Se preferir criar o serviço manualmente: escolha **Web Service → Docker**, branch `main`, Dockerfile `backend/Dockerfile` e contexto Docker `backend`. Configure as mesmas quatro variáveis acima e `SPRING_PROFILES_ACTIVE=prod`.
+
+### Frontend (Vercel)
+Importe o mesmo repositório como um projeto separado no Vercel e configure:
+
+- **Root Directory:** `frontend`.
+- **Framework Preset:** Vite.
+- **Build Command:** `npm run build`.
+- **Output Directory:** `dist`.
+- **Environment Variable:** `VITE_API_URL=https://SEU-SERVICO.onrender.com` (URL base do backend, sem caminho `/api`).
+
+O `frontend/vercel.json` inclui o rewrite necessário para recarregar rotas da aplicação sem receber 404. Depois do primeiro deploy, copie o domínio Vercel final para `CORS_ALLOWED_ORIGINS` no Render e faça redeploy do backend. Se mudar `VITE_API_URL`, gere um novo deploy do frontend, pois a variável é incorporada durante o build.
+
+### Ordem de publicação
+1. Confirme que o PostgreSQL/Neon está acessível externamente e faça backup se já tiver dados.
+2. Publique o backend no Render e aguarde o Flyway concluir as migrações.
+3. Publique o frontend no Vercel usando a URL pública do backend.
+4. Atualize `CORS_ALLOWED_ORIGINS` no Render com o domínio do frontend e faça redeploy.
+5. Teste a navegação, listagem e cadastro de jogadores, partidas, criação de campeonato, sorteio, placares, mata-mata e exclusão.
 
 ## 🤝 Contribuição
 

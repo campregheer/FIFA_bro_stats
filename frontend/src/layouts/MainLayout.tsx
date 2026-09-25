@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 
-type Tab = "dashboard" | "players" | "teams" | "matches" | "statistics";
+type Tab = "dashboard" | "players" | "teams" | "matches" | "statistics" | "championships";
 
 interface MainLayoutProps {
   dashboard: ReactNode;
@@ -9,6 +9,7 @@ interface MainLayoutProps {
   teams: ReactNode;
   matches: ReactNode;
   statistics: ReactNode;
+  championships: ReactNode;
 }
 
 const TABS: { key: Tab; label: string }[] = [
@@ -17,9 +18,10 @@ const TABS: { key: Tab; label: string }[] = [
   { key: "teams", label: "Times" },
   { key: "matches", label: "Partidas" },
   { key: "statistics", label: "Estatísticas" },
+  { key: "championships", label: "Campeonatos" },
 ];
 
-export function MainLayout({ dashboard, players, teams, matches, statistics }: MainLayoutProps) {
+export function MainLayout({ dashboard, players, teams, matches, statistics, championships }: MainLayoutProps) {
   const [activeTab, setActiveTab] = useState<Tab>("dashboard");
 
   const content: Record<Tab, ReactNode> = {
@@ -28,6 +30,7 @@ export function MainLayout({ dashboard, players, teams, matches, statistics }: M
     teams,
     matches,
     statistics,
+    championships,
   };
 
   return (
