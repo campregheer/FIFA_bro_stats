@@ -4,6 +4,7 @@ import { PlayersPage } from "./pages/Players";
 import { TeamsPage } from "./pages/Teams";
 import { MatchesPage } from "./pages/Matches";
 import { StatisticsPage } from "./pages/Statistics";
+import { ChampionshipsPage } from "./pages/Championships";
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
       teams={<TeamsPage />}
       matches={<MatchesPage />}
       statistics={<StatisticsPage />}
+      championships={<ChampionshipsPage />}
     />
   );
 }
